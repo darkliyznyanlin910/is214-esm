@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: odoo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: odoo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: odoo
+    spec:
+      affinity:
+        podAffinity:
+          # here we want to deploy on the same region the the primary instance of postgres
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: cnpg.io/cluster
+                    operator: Exists
+                  - key: role
+                    operator: In
+                    values:
+                      - primary
+              topologyKey: topology.kubernetes.io/region
+      imagePullSecrets:
+        - name: acr-secret
+      initContainers:
+        - name: odoo-init
+          image: esmproject.azurecr.io/odoo-kubernetes:latest
+          imagePullPolicy: Always
+          args:
+            - /entrypoint-dbbase
+          env: &env
+            - name: PGUSER
+              valueFrom: &pguser
+                secretKeyRef:
+                  key: username
+                  name: postgres-app # Provided by CNPG
+            - name: POSTGRES_USER
+              valueFrom: *pguser
+            - name: PGPASSWORD
+              valueFrom: &pgpassword
+                secretKeyRef:
+                  key: password
+                  name: postgres-app # Provided by CNPG
+            - name: POSTGRES_PASSWORD
+              valueFrom: *pgpassword
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: master_password
+                  name: odoo-secret
+          envFrom: &envFrom
+            - configMapRef:
+                name: odoo-env
+      containers:
+        - name: odoo
+          image: esmproject.azurecr.io/odoo-kubernetes:latest
+          imagePullPolicy: Always
+          env: *env
+          envFrom: *envFrom
+          resources:
+            limits:
+              cpu: "500m"
+              memory: 1Gi
+            requests:
+              cpu: "250m"
+              memory: 1Gi
+          ports:
+            - containerPort: 8069
+              name: web
+            - containerPort: 8072
+              name: websocket
+          readinessProbe:
+            httpGet:
+              path: /web/health
+              port: 8069
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
