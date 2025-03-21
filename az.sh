@@ -1,7 +1,6 @@
 export REGION="southeastasia"
 export RESOURCE_GROUP_NAME="esm-aks-rg"
 export AKS_CLUSTER_NAME="esm-aks-cluster"
-export DNS_LABEL="esm-aks-dns-label"
 export ACR_NAME="esmproject"
 
 ACTION=$1
