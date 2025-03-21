@@ -18,11 +18,8 @@
 ## Commands
 
 ```bash
-# Initialize Azure resources and AKS cluster
+# Initialize Azure resources, create AKS cluster, and setup ACR credentials
 ./az.sh init
-
-# Login to ACR and AKS
-./az.sh login
 
 # Build multi-arch Docker image
 ./az.sh build
@@ -30,19 +27,28 @@
 # Push image to ACR
 ./az.sh push
 
+# Install supporting services (metrics-server, ingress-nginx, cloudnative-pg)
+./az.sh install
+
 # Deploy to AKS
 ./az.sh deploy
 
-# Setup Ingress Controller
-./az.sh ingress
+# Install cert-manager for SSL certificates
+./az.sh install-cert-manager
+
+# Setup SSL with Let's Encrypt (requires domain name)
+./az.sh setup-ssl yourdomain.com
 
 # Get Ingress IP
 ./az.sh get-ip
 
-# Revert deployment
+# Uninstall supporting services
+./az.sh uninstall
+
+# Revert deployment (remove k8s resources)
 ./az.sh revert
 
-# Delete all resources
+# Delete all Azure resources
 ./az.sh delete
 ```
 
@@ -62,15 +68,17 @@ k8s/
 
 ## Deployment Flow
 
-1. `init`: Creates Azure resources and AKS cluster
-2. `login`: Authenticates with ACR and AKS
-3. `build`: Builds multi-arch Docker image
-4. `push`: Pushes image to Azure Container Registry
-5. `deploy`: Applies all k8s manifests
-6. `ingress`: Sets up NGINX Ingress Controller
-7. `get-ip`: Retrieves public IP for access
+1. `init`: Creates Azure resources, AKS cluster, and sets up ACR credentials
+2. `build`: Builds multi-arch Docker image for amd64 and arm64
+3. `push`: Pushes image to Azure Container Registry
+4. `deploy`: Applies all k8s manifests using kustomize
+5. `install`: Sets up metrics-server, NGINX Ingress Controller, and CloudNative PostgreSQL
+6. `install-cert-manager`: Installs cert-manager for SSL certificates
+7. `setup-ssl`: Configures Let's Encrypt SSL certificate for a specified domain
+8. `get-ip`: Retrieves public IP for access
 
 ## Cleanup
 
-- `revert`: Removes k8s resources
+- `uninstall`: Removes supporting components (metrics-server, ingress-nginx, cloudnative-pg)
+- `revert`: Removes k8s resources deployed via kustomize
 - `delete`: Tears down all Azure resources
