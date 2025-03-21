@@ -56,14 +56,20 @@
 
 ```
 k8s/
-└── manifests/
-    ├── kustomization.yaml    # Kustomize config
-    ├── odoo-deployment.yaml  # Odoo deployment spec
-    ├── postgresql.yaml       # PostgreSQL deployment
-    ├── odoo-configmap.yaml   # Odoo config
-    ├── odoo-secret.yaml      # Odoo secrets
-    ├── odoo-ingress.yaml     # Ingress rules
-    └── odoo-service.yaml     # Service definition
+├── kustomization.yaml    # Root Kustomize config
+├── default/              # Default namespace resources
+│   ├── kustomization.yaml    # Default namespace Kustomize config
+│   ├── odoo-deployment.yaml  # Odoo deployment spec
+│   ├── postgresql.yaml       # PostgreSQL deployment
+│   ├── odoo-configmap.yaml   # Odoo config
+│   ├── odoo-secret.yaml      # Odoo secrets
+│   ├── odoo-ingress.yaml     # Ingress rules
+│   └── odoo-service.yaml     # Service definition
+└── vector/               # Vector logging resources
+    ├── kustomization.yaml    # Vector Kustomize config
+    ├── vector-agent.yaml     # Vector agent DaemonSet
+    ├── vector-namespace.yaml # Vector namespace definition
+    └── rbac.yaml             # Vector RBAC permissions
 ```
 
 ## Deployment Flow
