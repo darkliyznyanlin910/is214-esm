@@ -28,7 +28,7 @@ case "$ACTION" in
     docker buildx build --platform linux/amd64,linux/arm64 -t $ACR_NAME.azurecr.io/odoo-kubernetes:latest --push ./docker
     ;;
   deploy)
-    kubectl apply -k k8s/manifests
+    kubectl apply -k k8s
     ;;
   ingress)
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
@@ -39,7 +39,7 @@ case "$ACTION" in
     echo "Your Odoo instance is accessible at: http://$IP"
     ;;
   revert)
-    kubectl delete -k k8s/manifests
+    kubectl delete -k k8s
     ;;
   delete)
     az group delete --name $RESOURCE_GROUP_NAME --yes
