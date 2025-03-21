@@ -7,8 +7,15 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # When SSL is enabled, this annotation will be set to true and the below will be added
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
+  # TLS configuration will be added here when SSL is enabled:
+  # tls:
+  # - hosts:
+  #   - your-domain.com
+  #   secretName: odoo-tls-cert
   rules:
     - http:
         paths:
