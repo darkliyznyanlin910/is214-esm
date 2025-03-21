@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: default
+
+resources:
+  - postgresql.yaml
+  - odoo-configmap.yaml
+  - odoo-deployment.yaml
+  - odoo-service.yaml
+  - odoo-ingress.yaml
+  - odoo-secret.yaml

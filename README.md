@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-- Azure CLI installed
-- Docker installed
-- kubectl installed
+- `az` (Azure CLI) installed
+- `docker` installed
+- `kubectl` installed
 - Azure subscription
 - Azure Container Registry (ACR) created with name "esmproject"
 

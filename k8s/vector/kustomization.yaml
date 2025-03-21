@@ -1,0 +1,57 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vector
+
+images:
+  # Override the Vector image to pin the version used.
+  - name: timberio/vector
+    newName: timberio/vector
+    newTag: 0.33.0-distroless-libc
+
+resources:
+  # Vector namespace creation
+  - vector-namespace.yaml
+  # RBAC config allowing Vector access to metrics and creating a Secret with the service account.
+  - rbac.yaml
+  # Include Vector recommended base (from git).
+  - github.com/vectordotdev/vector/distribution/kubernetes/vector-agent
+
+configMapGenerator:
+  # ConfigMap with Vector config.
+  - name: vector
+    behavior: replace
+    files:
+      - vector-agent.yaml
+
+patches:
+  # Prevent data dir read-only volume mount issue: https://github.com/vectordotdev/helm-charts/issues/226
+  # Set volumeMount readOnly: false
+  # Also, add vector SA token into an ENV variable, Vector will use it to connect to metrics-server
+  - patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/volumeMounts/3/readOnly
+        value: false
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: SERVICE_ACCOUNT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: vector-service-account
+              key: token
+    target:
+      group: apps
+      version: v1
+      kind: DaemonSet
+      name: vector
+  # Ensure metrics-server is deployed with --kubelet-insecure-tls
+  - patch: |-
+      - op: add
+        path: /spec/template/spec/containers/1/command/-
+        value: --kubelet-insecure-tls
+    target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: metrics-server
+      namespace: kube-system
