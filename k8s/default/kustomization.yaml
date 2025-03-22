@@ -9,3 +9,4 @@ resources:
   - odoo-service.yaml
   - odoo-ingress.yaml
   - odoo-secret.yaml
+  - cert-manager.yaml
