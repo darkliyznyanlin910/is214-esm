@@ -11,3 +11,4 @@ resources:
   - odoo-secret.yaml
   - odoo-hpa.yaml
   - cert-manager.yaml
+  - odoo-pvc.yaml

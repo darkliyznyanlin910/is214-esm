@@ -27,9 +27,43 @@ spec:
                     values:
                       - primary
               topologyKey: topology.kubernetes.io/region
+      volumes:
+        - name: odoo-filestore
+          persistentVolumeClaim:
+            claimName: odoo-filestore
+        - name: odoo-config
+          emptyDir: {}
       imagePullSecrets:
         - name: acr-secret
       initContainers:
+        - name: config-init
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              'echo "[options]" > /etc/odoo/odoo.conf && echo "admin_passwd = $ADMIN_PASSWORD" >> /etc/odoo/odoo.conf && echo "data_dir = /var/lib/odoo" >> /etc/odoo/odoo.conf && echo "addons_path = /mnt/extra-addons" >> /etc/odoo/odoo.conf',
+            ]
+          env:
+            - name: ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: master_password
+                  name: odoo-secret
+          volumeMounts:
+            - name: odoo-config
+              mountPath: /etc/odoo
+        - name: fix-permissions
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir -p /var/lib/odoo/filestore/odoo && chmod -R 777 /var/lib/odoo",
+            ]
+          volumeMounts:
+            - name: odoo-filestore
+              mountPath: /var/lib/odoo
         - name: odoo-init
           image: esmproject.azurecr.io/odoo-kubernetes:latest
           imagePullPolicy: Always
@@ -50,20 +84,25 @@ spec:
                   name: postgres-app # Provided by CNPG
             - name: POSTGRES_PASSWORD
               valueFrom: *pgpassword
-            - name: ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: master_password
-                  name: odoo-secret
           envFrom: &envFrom
             - configMapRef:
                 name: odoo-env
+          volumeMounts:
+            - name: odoo-filestore
+              mountPath: /var/lib/odoo
+            - name: odoo-config
+              mountPath: /etc/odoo
       containers:
         - name: odoo
           image: esmproject.azurecr.io/odoo-kubernetes:latest
           imagePullPolicy: Always
           env: *env
           envFrom: *envFrom
+          volumeMounts:
+            - name: odoo-filestore
+              mountPath: /var/lib/odoo
+            - name: odoo-config
+              mountPath: /etc/odoo
           resources:
             limits:
               cpu: "500m"
@@ -81,5 +120,6 @@ spec:
               path: /web/health
               port: 8069
             initialDelaySeconds: 5
-            periodSeconds: 10
+            periodSeconds: 60
             timeoutSeconds: 2
+            failureThreshold: 3
