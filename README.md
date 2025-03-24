@@ -21,23 +21,14 @@
 # Initialize Azure resources, create AKS cluster, and setup ACR credentials
 ./az.sh init
 
-# Build multi-arch Docker image
+# Build and push multi-arch Docker image to ACR
 ./az.sh build
-
-# Push image to ACR
-./az.sh push
-
-# Install supporting services (metrics-server, ingress-nginx, cloudnative-pg)
-./az.sh install
 
 # Deploy to AKS
 ./az.sh deploy
 
-# Install cert-manager for SSL certificates
-./az.sh install-cert-manager
-
-# Setup SSL with Let's Encrypt (requires domain name)
-./az.sh setup-ssl yourdomain.com
+# Install supporting services (metrics-server, ingress-nginx, cloudnative-pg, cert-manager)
+./az.sh install
 
 # Get Ingress IP
 ./az.sh get-ip
@@ -75,16 +66,13 @@ k8s/
 ## Deployment Flow
 
 1. `init`: Creates Azure resources, AKS cluster, and sets up ACR credentials
-2. `build`: Builds multi-arch Docker image for amd64 and arm64
-3. `push`: Pushes image to Azure Container Registry
-4. `deploy`: Applies all k8s manifests using kustomize
-5. `install`: Sets up metrics-server, NGINX Ingress Controller, and CloudNative PostgreSQL
-6. `install-cert-manager`: Installs cert-manager for SSL certificates
-7. `setup-ssl`: Configures Let's Encrypt SSL certificate for a specified domain
-8. `get-ip`: Retrieves public IP for access
+2. `build`: Builds and pushes multi-arch Docker image for amd64 and arm64 to ACR
+3. `deploy`: Applies all k8s manifests using kustomize
+4. `install`: Sets up metrics-server, NGINX Ingress Controller, CloudNative PostgreSQL, and cert-manager
+5. `get-ip`: Retrieves public IP for access
 
 ## Cleanup
 
-- `uninstall`: Removes supporting components (metrics-server, ingress-nginx, cloudnative-pg)
+- `uninstall`: Removes supporting components (metrics-server, ingress-nginx, cloudnative-pg, cert-manager)
 - `revert`: Removes k8s resources deployed via kustomize
 - `delete`: Tears down all Azure resources

@@ -19,9 +19,6 @@ case "$ACTION" in
     ;;
   build)
     docker buildx create --use
-    docker buildx build --platform linux/amd64,linux/arm64 -t odoo-kubernetes ./docker
-    ;;
-  push)
     docker buildx build --platform linux/amd64,linux/arm64 -t $ACR_NAME.azurecr.io/odoo-kubernetes:latest --push ./docker
     ;;
   deploy)
@@ -51,6 +48,6 @@ case "$ACTION" in
     az group delete --name $RESOURCE_GROUP_NAME --yes
     ;;
   *)
-    echo "Usage: $0 {init|login|build|push|deploy|install|install-cert-manager|setup-ssl|uninstall|get-ip|revert|delete}"
+    echo "Usage: $0 {init|login|build|deploy|install|uninstall|get-ip|revert|delete}"
     exit 1
 esac
