@@ -17,17 +17,18 @@ case "$ACTION" in
       --namespace=default \
       --dry-run=client -o yaml | kubectl apply -f -
     ;;
+  login)
+    az aks get-credentials --resource-group $RESOURCE_GROUP_NAME --name $AKS_CLUSTER_NAME
+    az acr login --name $ACR_NAME
+    ;;
   build)
     docker buildx create --use
     docker buildx build --platform linux/amd64,linux/arm64 -t $ACR_NAME.azurecr.io/odoo-kubernetes:latest --push ./docker
     ;;
-  deploy)
-    kubectl apply -k k8s
-    ;;
   install)
     kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.6.4/components.yaml
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
-    kubectl apply --server-side=true --force-conflicts -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.21/releases/cnpg-1.21.3.yaml
+    kubectl apply -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.21/releases/cnpg-1.21.3.yaml
     kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.1/cert-manager.yaml
     ;;
   uninstall)
@@ -35,6 +36,25 @@ case "$ACTION" in
     kubectl delete -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
     kubectl delete -f https://raw.githubusercontent.com/cloudnative-pg/cloudnative-pg/release-1.21/releases/cnpg-1.21.3.yaml
     kubectl delete -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.1/cert-manager.yaml
+    ;;
+  deploy)
+    case "$2" in
+      odoo)
+        kubectl apply -k k8s/default
+        ;;
+      postgres)
+        kubectl apply -k k8s/postgres
+        ;;
+      ingress)
+        kubectl apply -k k8s/ingress
+        ;;
+      vector)
+        kubectl apply -k k8s/vector
+        ;;
+      *)
+        kubectl apply -k k8s
+        ;;
+    esac
     ;;
   get-ip)
     echo "Getting Ingress IP..."
@@ -48,6 +68,6 @@ case "$ACTION" in
     az group delete --name $RESOURCE_GROUP_NAME --yes
     ;;
   *)
-    echo "Usage: $0 {init|login|build|deploy|install|uninstall|get-ip|revert|delete}"
+    echo "Usage: $0 {init|login|build|install|uninstall|deploy [odoo|postgres|ingress|vector]|get-ip|revert|delete}"
     exit 1
 esac

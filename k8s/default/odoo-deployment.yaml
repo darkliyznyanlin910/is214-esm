@@ -75,6 +75,7 @@ spec:
                 secretKeyRef:
                   key: username
                   name: postgres-app # Provided by CNPG
+                  namespace: postgres
             - name: POSTGRES_USER
               valueFrom: *pguser
             - name: PGPASSWORD
@@ -82,6 +83,7 @@ spec:
                 secretKeyRef:
                   key: password
                   name: postgres-app # Provided by CNPG
+                  namespace: postgres
             - name: POSTGRES_PASSWORD
               valueFrom: *pgpassword
           envFrom: &envFrom

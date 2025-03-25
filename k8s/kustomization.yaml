@@ -6,3 +6,7 @@ resources:
   - vector
   # Default namespace resources
   - default
+  # Postgres resources
+  - postgres
+  # Ingress resources
+  - ingress

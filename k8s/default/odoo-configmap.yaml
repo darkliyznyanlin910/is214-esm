@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: odoo-env
 data:
-  DB_HOST: postgres-rw # Service provided by CNPG
-  DB_PORT_5432_TCP_ADDR: postgres-rw # for odoo image
+  DB_HOST: postgres-rw.postgres # Service provided by CNPG
+  DB_PORT_5432_TCP_ADDR: postgres-rw.postgres # for odoo image
   PGDATABASE: odoo # for postgresql client
-  PGHOST: postgres-rw # for postgresql client
+  PGHOST: postgres-rw.postgres # for postgresql client
