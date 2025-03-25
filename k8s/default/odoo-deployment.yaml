@@ -14,19 +14,22 @@ spec:
       labels:
         app: odoo
     spec:
+      serviceAccountName: odoo-sa
       affinity:
         podAffinity:
-          # here we want to deploy on the same region the the primary instance of postgres
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: cnpg.io/cluster
-                    operator: Exists
-                  - key: role
-                    operator: In
-                    values:
-                      - primary
-              topologyKey: topology.kubernetes.io/region
+          # Change from required to preferred to allow scheduling even if condition isn't met
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: cnpg.io/cluster
+                      operator: Exists
+                    - key: role
+                      operator: In
+                      values:
+                        - primary
+                topologyKey: topology.kubernetes.io/region
       volumes:
         - name: odoo-filestore
           persistentVolumeClaim:
@@ -75,7 +78,6 @@ spec:
                 secretKeyRef:
                   key: username
                   name: postgres-app # Provided by CNPG
-                  namespace: postgres
             - name: POSTGRES_USER
               valueFrom: *pguser
             - name: PGPASSWORD
@@ -83,7 +85,6 @@ spec:
                 secretKeyRef:
                   key: password
                   name: postgres-app # Provided by CNPG
-                  namespace: postgres
             - name: POSTGRES_PASSWORD
               valueFrom: *pgpassword
           envFrom: &envFrom

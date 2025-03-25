@@ -62,7 +62,23 @@ case "$ACTION" in
     echo "Your Odoo instance is accessible at: http://$IP"
     ;;
   revert)
-    kubectl delete -k k8s
+    case "$2" in
+      odoo)
+        kubectl delete -k k8s/default
+        ;;
+      postgres)
+        kubectl delete -k k8s/postgres
+        ;;
+      ingress)
+        kubectl delete -k k8s/ingress
+        ;;
+      vector)
+        kubectl delete -k k8s/vector
+        ;;
+      *)
+        kubectl delete -k k8s
+        ;;
+    esac
     ;;
   delete)
     az group delete --name $RESOURCE_GROUP_NAME --yes

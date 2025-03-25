@@ -3,12 +3,11 @@ kind: Kustomization
 namespace: default
 
 resources:
-  - postgresql.yaml
   - odoo-configmap.yaml
   - odoo-deployment.yaml
   - odoo-service.yaml
-  - odoo-ingress.yaml
   - odoo-secret.yaml
   - odoo-hpa.yaml
-  - cert-manager.yaml
   - odoo-pvc.yaml
+  - odoo-rbac.yaml
+  - postgres-secret-sync.yaml

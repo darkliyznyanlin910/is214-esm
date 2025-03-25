@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo-proxy
+  namespace: ingress
+spec:
+  type: ExternalName
+  externalName: odoo.default.svc.cluster.local
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP

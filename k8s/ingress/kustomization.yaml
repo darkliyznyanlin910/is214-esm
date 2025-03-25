@@ -3,5 +3,7 @@ kind: Kustomization
 namespace: ingress
 
 resources:
+  - namespace.yaml
   - cert-manager.yaml
   - ingress.yaml
+  - odoo-proxy-service.yaml
