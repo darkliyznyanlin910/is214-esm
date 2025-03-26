@@ -11,3 +11,5 @@ resources:
   - odoo-pvc.yaml
   - odoo-rbac.yaml
   - postgres-secret-sync.yaml
+  - odoo-backup-cronjob.yaml
+  - odoo-s3-secret.yaml

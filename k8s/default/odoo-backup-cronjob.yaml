@@ -1,0 +1,78 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: odoo-backup
+  namespace: default
+spec:
+  schedule: "0 0 * * *" # Run at 00:00 AM every day
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: amazon/aws-cli:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  # Load environment variables from secrets
+                  export AWS_ACCESS_KEY_ID=$(cat /etc/aws-secrets/AWS_ACCESS_KEY_ID)
+                  export AWS_SECRET_ACCESS_KEY=$(cat /etc/aws-secrets/AWS_SECRET_ACCESS_KEY)
+                  export AWS_REGION=$(cat /etc/aws-secrets/AWS_REGION)
+                  export S3_BUCKET=$(cat /etc/aws-secrets/S3_BUCKET)
+
+                  BACKUP_DIR=/tmp/backups
+                  ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
+                  ADMIN_PASSWORD=$(cat /etc/secrets/master_password)
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%F).zip"
+
+                  # Install curl
+                  yum install -y curl
+
+                  echo "Creating backup directory"
+                  mkdir -p ${BACKUP_DIR}
+
+                  echo "Creating Odoo backup"
+                  curl -X POST \
+                    -F "master_pwd=${ADMIN_PASSWORD}" \
+                    -F "name=${ODOO_DATABASE}" \
+                    -F "backup_format=zip" \
+                    -o ${BACKUP_DIR}/${BACKUP_FILENAME} \
+                    http://odoo:80/web/database/backup
+
+                  echo "Backup created, listing files"
+                  ls -la ${BACKUP_DIR}
+
+                  echo "Uploading backup to S3"
+                  aws s3 cp ${BACKUP_DIR}/${BACKUP_FILENAME} s3://${S3_BUCKET}/odoo-backups/${BACKUP_FILENAME}
+
+                  echo "Cleaning up local backup"
+                  rm -rf ${BACKUP_DIR}
+              volumeMounts:
+                - name: odoo-secrets
+                  mountPath: /etc/secrets
+                  readOnly: true
+                - name: odoo-config
+                  mountPath: /etc/configmap
+                  readOnly: true
+                - name: aws-secrets
+                  mountPath: /etc/aws-secrets
+                  readOnly: true
+          restartPolicy: OnFailure
+          volumes:
+            - name: odoo-secrets
+              secret:
+                secretName: odoo-secret
+                items:
+                  - key: master_password
+                    path: master_password
+            - name: odoo-config
+              configMap:
+                name: odoo-env
+            - name: aws-secrets
+              secret:
+                secretName: odoo-s3-secret
