@@ -22,7 +22,7 @@ spec:
                   BACKUP_DIR=/backups
                   ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
                   ADMIN_PASSWORD=$(cat /etc/secrets/master_password)
-                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%F).zip"
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H%M%S).zip"
 
                   echo "Creating backup directory"
                   mkdir -p ${BACKUP_DIR}
@@ -61,7 +61,7 @@ spec:
 
                   BACKUP_DIR=/backups
                   ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
-                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%F).zip"
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H%M%S).zip"
 
                   echo "Listing backup files"
                   ls -la ${BACKUP_DIR}
@@ -93,7 +93,7 @@ spec:
 
                   BACKUP_DIR="/backups"
                   ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
-                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%F).zip"
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H%M%S).zip"
 
                   echo "Listing backup files"
                   ls -la ${BACKUP_DIR}
