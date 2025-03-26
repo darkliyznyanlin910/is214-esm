@@ -13,3 +13,4 @@ resources:
   - postgres-secret-sync.yaml
   - odoo-backup-cronjob.yaml
   - odoo-s3-secret.yaml
+  - odoo-r2-secret.yaml
