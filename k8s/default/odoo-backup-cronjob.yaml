@@ -4,7 +4,7 @@ metadata:
   name: odoo-backup
   namespace: default
 spec:
-  schedule: "0 0 * * *" # Run at 00:00 AM every day
+  schedule: "0 */4 * * *" # Run every 4 hours
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 1
@@ -22,7 +22,7 @@ spec:
                   BACKUP_DIR=/backups
                   ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
                   ADMIN_PASSWORD=$(cat /etc/secrets/master_password)
-                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H%M%S).zip"
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H).zip"
 
                   echo "Creating backup directory"
                   mkdir -p ${BACKUP_DIR}
@@ -61,7 +61,7 @@ spec:
 
                   BACKUP_DIR=/backups
                   ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
-                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H%M%S).zip"
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H).zip"
 
                   echo "Listing backup files"
                   ls -la ${BACKUP_DIR}
@@ -93,7 +93,7 @@ spec:
 
                   BACKUP_DIR="/backups"
                   ODOO_DATABASE=$(cat /etc/configmap/PGDATABASE)
-                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H%M%S).zip"
+                  BACKUP_FILENAME="${ODOO_DATABASE}-$(date +%Y%m%d_%H).zip"
 
                   echo "Listing backup files"
                   ls -la ${BACKUP_DIR}
@@ -102,7 +102,6 @@ spec:
 
                   # Define variables for upload
                   OBJECT_KEY="odoo-backups/${BACKUP_FILENAME}"
-                  DATE=$(date -u +"%Y%m%dT%H%M%SZ")
                   HOST="${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
 
                   # Execute the upload directly using AWS CLI instead of presigned URL
