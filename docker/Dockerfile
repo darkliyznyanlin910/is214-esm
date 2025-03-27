@@ -6,3 +6,5 @@ COPY requirements.in /requirements.in
 RUN pip install -r /requirements.in
 # Copy script which initialize the database (odoo -i)
 COPY ./entrypoint-dbbase /entrypoint-dbbase
+# Copy script which reset the password of the admin user
+COPY ./reset-password /reset-password
