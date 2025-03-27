@@ -56,6 +56,17 @@ case "$ACTION" in
         ;;
     esac
     ;;
+  rollout)
+    case "$2" in
+      odoo)
+        kubectl rollout restart deployment odoo
+        ;;
+      *)
+        echo "Usage: $0 rollout [odoo]"
+        exit 1
+        ;;
+    esac
+    ;;
   get-ip)
     echo "Getting Ingress IP..."
     IP=$(kubectl get service ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
@@ -84,6 +95,28 @@ case "$ACTION" in
     az group delete --name $RESOURCE_GROUP_NAME --yes
     ;;
   *)
-    echo "Usage: $0 {init|login|build|install|uninstall|deploy [odoo|postgres|ingress|vector]|get-ip|revert|delete}"
+    echo "Usage: $0 COMMAND [OPTIONS]"
+    echo
+    echo "Commands:"
+    echo "  init                Initialize AKS cluster and set up resources"
+    echo "  login               Login to AKS cluster and ACR"
+    echo "  build               Build and push Docker images to ACR"
+    echo "  install             Install Kubernetes components"
+    echo "  uninstall           Uninstall Kubernetes components"
+    echo "  deploy [COMPONENT]  Deploy resources to cluster"
+    echo "    COMPONENT:"
+    echo "      odoo            Deploy Odoo only"
+    echo "      postgres        Deploy PostgreSQL only"
+    echo "      ingress         Deploy Ingress controllers only"
+    echo "      vector          Deploy Vector only"
+    echo "      (default)       Deploy all components"
+    echo "  rollout [COMPONENT] Restart deployments"
+    echo "    COMPONENT:"
+    echo "      odoo            Restart Odoo deployment"
+    echo "  get-ip              Get the external IP address for Odoo"
+    echo "  revert [COMPONENT]  Remove deployed resources"
+    echo "    COMPONENT:        Same options as deploy"
+    echo "  delete              Delete the entire resource group"
+    echo
     exit 1
 esac
