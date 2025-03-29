@@ -45,7 +45,7 @@ spec:
             [
               "sh",
               "-c",
-              'echo "[options]" > /etc/odoo/odoo.conf && echo "admin_passwd = $ADMIN_PASSWORD" >> /etc/odoo/odoo.conf && echo "data_dir = /var/lib/odoo" >> /etc/odoo/odoo.conf && echo "addons_path = /mnt/extra-addons" >> /etc/odoo/odoo.conf && echo "proxy_mode = True" >> /etc/odoo/odoo.conf',
+              'echo "[options]" > /etc/odoo/odoo.conf && echo "admin_passwd = $ADMIN_PASSWORD" >> /etc/odoo/odoo.conf && echo "data_dir = /var/lib/odoo" >> /etc/odoo/odoo.conf && echo "addons_path = /mnt/extra-addons" >> /etc/odoo/odoo.conf && echo "proxy_mode = True" >> /etc/odoo/odoo.conf && echo "db_maxconn = 64" >> /etc/odoo/odoo.conf && echo "max_cron_threads = 2" >> /etc/odoo/odoo.conf && echo "workers = 4" >> /etc/odoo/odoo.conf && echo "limit_memory_hard = 2684354560" >> /etc/odoo/odoo.conf && echo "limit_memory_soft = 2147483648" >> /etc/odoo/odoo.conf && echo "limit_request = 8192" >> /etc/odoo/odoo.conf && echo "limit_time_cpu = 600" >> /etc/odoo/odoo.conf && echo "limit_time_real = 1200" >> /etc/odoo/odoo.conf',
             ]
           env:
             - name: ADMIN_PASSWORD
@@ -108,10 +108,10 @@ spec:
               mountPath: /etc/odoo
           resources:
             limits:
-              cpu: "500m"
-              memory: 1Gi
+              cpu: "1000m"
+              memory: 2Gi
             requests:
-              cpu: "250m"
+              cpu: "500m"
               memory: 1Gi
           ports:
             - containerPort: 8069
