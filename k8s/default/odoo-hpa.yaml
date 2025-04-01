@@ -8,7 +8,7 @@ spec:
     kind: Deployment
     name: odoo
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 3
   metrics:
     - type: Resource
       resource:
@@ -27,11 +27,11 @@ spec:
       stabilizationWindowSeconds: 60
       policies:
         - type: Percent
-          value: 100
+          value: 75
           periodSeconds: 60
     scaleDown:
-      stabilizationWindowSeconds: 300
+      stabilizationWindowSeconds: 60
       policies:
         - type: Percent
-          value: 10
+          value: 25
           periodSeconds: 60
