@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: odoo
+  namespace: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "8"
+    nginx.ingress.kubernetes.io/client-body-buffer-size: "128k"
+    nginx.ingress.kubernetes.io/use-gzip: "true"
+    nginx.ingress.kubernetes.io/gzip-min-length: "1000"
+    nginx.ingress.kubernetes.io/gzip-types: "application/json application/javascript text/css text/javascript"
+    nginx.ingress.kubernetes.io/worker-connections: "8192"
+    nginx.ingress.kubernetes.io/worker-processes: "4"
+    nginx.ingress.kubernetes.io/worker-shutdown-timeout: "60s"
+    nginx.ingress.kubernetes.io/worker-cpu-affinity: "auto"
+    nginx.ingress.kubernetes.io/keepalive: "75"
+    nginx.ingress.kubernetes.io/upstream-keepalive-connections: "128"
+    nginx.ingress.kubernetes.io/load-balance: "least_conn"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - odoo.test.com # CHANGE
+      secretName: odoo-tls-cert
+  rules:
+    - host: odoo.test.com # CHANGE
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: odoo-proxy
+                port:
+                  number: 80
